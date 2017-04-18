@@ -31,3 +31,35 @@ CREATE TABLE `estatus` (\
 \
 \
 }
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `createEmp`(IN nombre VARCHAR(35), IN clave int8 , IN estado int8, IN iddepartamento int8)
+BEGIN
+INSERT INTO empleados (nombre,clave,estado,iddepartamento) VALUES (nombre,clave,estado,iddepartamento);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteEmp`(IN idEmp int8)
+BEGIN
+DELETE FROM sistema.empleados WHERE sistema.empleados.idempleado=idEmp;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getAll`()
+BEGIN
+SELECT empleados.idempleado, empleados.nombre,empleados.estado, 
+(select departamentos.descripcion from sistema.departamentos where departamentos.iddepartamento = empleados.iddepartamento ) FROM sistema.empleados ORDER BY nombre;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmp`(IN id int8)
+BEGIN
+SELECT empleados.idempleado, empleados.nombre,empleados.estado, 
+(select departamentos.descripcion from sistema.departamentos where departamentos.iddepartamento = empleados.iddepartamento ) FROM sistema.empleados WHERE empleados.idempleado=id;
+END$$
+DELIMITER ;
+
