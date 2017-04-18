@@ -10,7 +10,7 @@ from flask import jsonify
 from flask import request
 #from flask_mysql import MySQL
 from flaskext.mysql import MySQL
-
+import json
 
 # DB conection (MySQL)
 #
@@ -47,7 +47,6 @@ def getAll():
 
 
 
-
 @app.route('/people/ws/<empId>',methods=['GET'])
 def getEmp(empId):
 #Preparing a db cursor to hold db responses
@@ -56,20 +55,45 @@ def getEmp(empId):
     print '**************'
     print cursor
     print '**************'
-  
-
-
-    if  empty(cursor)  :
-        conn.commit()
-        return {'StatusCode':'000','Message':'Error no data found'}
-    
-    
-    else:
-         data = cursor.fetchall()
+    data = cursor.fetchall()
     return jsonify({'data':data})
 
 
+###################################################
 
+@app.route('/people/ws/add',methods=['POST'])
+def createEmp():
+    cursor= conn.cursor()
+    nombre= request.json['nombre']
+    clave= request.json['clave']
+    estado= request.json['estado']
+    iddepartamento= request.json['iddepartamento']
+    values= [nombre, clave, estado, iddepartamento]
+    print values  
+    cursor.callproc('createEmp',(nombre,clave,estado,iddepartamento))
+    data = cursor.fetchall()
+    if len(data) is 0:
+        conn.commit()
+        return json.dumps({'message':'User created successfully !'})
+    else:
+        return json.dumps({'error':str(data[0])})
+    return jsonify({'response':'Ok'})
+
+###################################################
+
+@app.route('/people/ws/remove/<idEmp>',methods=['DELETE'])
+def removeEmp(idEmp): 
+    print idEmp
+    cursor = conn.cursor()
+    cursor.callproc('deleteEmp',(idEmp))
+    data = cursor.fetchall()
+    if len(data) is 0:
+        conn.commit()
+        return json.dumps({'message':'User removed successfully !'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+    return jsonify({'response':'Ok'})
 
 
 
